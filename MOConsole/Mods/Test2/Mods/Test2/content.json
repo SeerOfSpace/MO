@@ -1,0 +1,11 @@
+{
+	"Format": "1.0",
+	"Changes": [
+		{
+		"Action": "Load",
+		"Target": "Animals/cat",
+		"FromFile": "cat.png",
+		"Enabled": true
+		}
+	]
+}

@@ -1,0 +1,10 @@
+{
+   "Name": "Test1",
+   "Author": "test",
+   "Description": "",
+   "Version": "1.0.0",
+   "UniqueID": "Test1",
+   "ContentPackFor": {
+       "UniqueID": "Pathoschild.ContentPatcher"
+    },
+}
