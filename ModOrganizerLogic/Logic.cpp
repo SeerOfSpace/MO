@@ -9,12 +9,13 @@ using namespace std;
 namespace fs = std::experimental::filesystem;
 DWORD MOLogic::processID = 0;
 wstring MOLogic::processName = L"";
-unsigned int MOLogic::appID = 0;
+HANDLE MOLogic::gameHandle = NULL;
+const string BACKUP_EXTENSION = " MOBAK";
 
 MOLogic::MOLogic(MOLogicStruct moStruct) {
 	modPath = fixPath(moStruct.modPath);
 	gamePath = fixPath(moStruct.gamePath);
-	tempPath = gamePath.string() + " BAK";
+	tempPath = gamePath.string() + BACKUP_EXTENSION;
 	exePath = fixPath(moStruct.exePath);
 	processName = moStruct.processName;
 	appID = moStruct.appID;
@@ -140,22 +141,17 @@ void MOLogic::start() {
 	else {
 		processID = startGame();
 	}
+	gameHandle = OpenProcess(PROCESS_TERMINATE | PROCESS_QUERY_INFORMATION, false, processID);
 
 	majorOutput("Finished");
-	this_thread::sleep_for(chrono::milliseconds(1000));
+	//this_thread::sleep_for(chrono::milliseconds(100));
 	initializeHook(processID, EVENT_OBJECT_DESTROY);
-	if (stopping) {
-		errorOutput("Stopping execution");
-		errorOutput("Closing game");
-		HANDLE gameHandle = OpenProcess(PROCESS_TERMINATE, false, processID);
-		TerminateProcess(gameHandle, NULL);
-		CloseHandle(gameHandle);
-		this_thread::sleep_for(chrono::milliseconds(100));
-		cleanup();
-		return;
-	}
 	errorOutput("Stopping execution");
-	this_thread::sleep_for(chrono::milliseconds(100));
+	if (stopping) {
+		errorOutput("Closing game");
+		TerminateProcess(gameHandle, NULL);
+	}
+	CloseHandle(gameHandle);
 	cleanup();
 	return;
 }
@@ -242,23 +238,41 @@ void MOLogic::gameRecursion(fs::path dir) {
 	}
 }
 
-void MOLogic::deleteRecursion(fs::path dir) {
+bool MOLogic::deleteRecursion(fs::path dir) {
 	if (SymLinkWrapper::isSymLink(dir.string())) {
 		minorOutput("Deleting SymLink: " + dir.string());
 		SymLinkWrapper::deleteSymLink(dir.string());
 	}
 	else {
+		string s;
 		if (fs::is_directory(dir)) {
 			for (fs::directory_entry entry : fs::directory_iterator(dir)) {
-				deleteRecursion(entry);
+				if (!deleteRecursion(entry)) {
+					return false;
+				}
 			}
-			minorOutput("Deleting Folder: " + dir.string());
+			s = "Folder";
 		}
 		else {
-			minorOutput("Deleting File: " + dir.string());
+			s = "File";
 		}
-		fs::remove(dir); //need to catch exceptions
+		bool b = true;
+		while (b) {
+			try {
+				minorOutput("Deleting " + s + ": " + dir.string());
+				fs::remove(dir); //need to catch exceptions
+				b = false;
+			}
+			catch (fs::filesystem_error e) {
+				errorOutput("Error deleting failed for: " + dir.string());
+				b = confirmation("Error deleting failed for: " + dir.string() + " \nRetry?");
+				if (!b) {
+					return false;
+				}
+			}
+		}
 	}
+	return true;
 }
 
 void MOLogic::initializeHook(DWORD processID, DWORD event) {
@@ -282,8 +296,8 @@ void MOLogic::initializeHook(DWORD processID, DWORD event) {
 void CALLBACK MOLogic::handleWinEvent(HWINEVENTHOOK hook, DWORD event, HWND hwnd, LONG idObject, LONG idChild, DWORD dwEventThread, DWORD dwmsEventTime) {
 	if (event == EVENT_OBJECT_DESTROY) {
 		DWORD exitCode;
-		GetExitCodeProcess(hwnd, &exitCode);
-		if (exitCode != STILL_ACTIVE) {
+		bool b = GetExitCodeProcess(gameHandle, &exitCode);
+		if (b && exitCode != STILL_ACTIVE) {
 			PostQuitMessage(0);
 		}
 	}
@@ -358,6 +372,7 @@ DWORD MOLogic::startGame() {
 
 void MOLogic::cleanup() {
 	if (fs::exists(tempPath)) {
+		this_thread::sleep_for(chrono::milliseconds(1000));
 		majorOutput("Starting Cleanup");
 		deleteRecursion(gamePath);
 		rename(tempPath, gamePath);
@@ -373,7 +388,7 @@ bool MOLogic::rename(fs::path source, fs::path dest) {
 			fs::rename(source, dest);
 			a = false;
 		}
-		catch (exception filesystem_error) {
+		catch (fs::filesystem_error e) {
 			errorOutput("Error: Renaming files failed");
 			a = confirmation("Error: Renaming files failed \nRetry?");
 			if (!a) {
