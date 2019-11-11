@@ -35,7 +35,8 @@ private:
 	HWINEVENTHOOK hook;
 	static DWORD processID;
 	static std::wstring processName;
-	static unsigned int appID;
+	static HANDLE gameHandle;
+	unsigned int appID;
 	DWORD threadID;
 
 	int getIndex(std::experimental::filesystem::path);
@@ -44,7 +45,7 @@ private:
 	void modRecursion(std::experimental::filesystem::path);
 	void modFile(std::experimental::filesystem::path);
 	void gameRecursion(std::experimental::filesystem::path);
-	void deleteRecursion(std::experimental::filesystem::path);
+	bool deleteRecursion(std::experimental::filesystem::path);
 	bool stopping = false;
 	void cleanup();
 	bool validData();
