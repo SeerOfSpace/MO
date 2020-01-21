@@ -17,6 +17,7 @@ MOLogic::MOLogic(MOLogicStruct moStruct) {
 	gamePath = fixPath(moStruct.gamePath);
 	tempPath = gamePath.string() + BACKUP_EXTENSION;
 	exePath = fixPath(moStruct.exePath);
+	exeArguments = moStruct.exeArguments;
 	processName = moStruct.processName;
 	appID = moStruct.appID;
 	if (moStruct.mods.size() == 0) {
@@ -350,16 +351,18 @@ DWORD MOLogic::startGame() {
 		ZeroMemory(&si, sizeof(si));
 		si.cb = sizeof(si);
 		ZeroMemory(&pi, sizeof(pi));
+		string args = exePath.string() + " " + exeArguments;
+		args = args.c_str();
 
 		CreateProcessA(
 			exePath.string().c_str(), // The path
-			NULL,        // Command line
+			&args.at(0),        // Command line
 			NULL,           // Process handle not inheritable
 			NULL,           // Thread handle not inheritable
 			FALSE,          // Set handle inheritance to FALSE
 			0,              // No creation flags
 			NULL,           // Use parent's environment block
-			NULL,           // Use parent's starting directory 
+			exePath.parent_path().string().c_str(),           // Use parent's starting directory 
 			&si,            // Pointer to STARTUPINFO structure
 			&pi             // Pointer to PROCESS_INFORMATION structure
 		);

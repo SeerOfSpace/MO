@@ -11,6 +11,7 @@ struct MOLogicStruct {
 	std::experimental::filesystem::path modPath{};
 	std::experimental::filesystem::path gamePath{};
 	std::experimental::filesystem::path exePath{};
+	std::string exeArguments;
 	std::wstring processName{};
 	unsigned int appID{};
 	std::vector <std::experimental::filesystem::path> mods{};
@@ -38,6 +39,7 @@ private:
 	static HANDLE gameHandle;
 	unsigned int appID;
 	DWORD threadID;
+	std::string exeArguments;
 
 	int getIndex(std::experimental::filesystem::path);
 	void modFileWork(std::experimental::filesystem::path, std::experimental::filesystem::path);

@@ -1,0 +1,26 @@
+Compiled for SDL version: 2.0.9
+Linked with SDL version: 2.0.9
+Setting up SRB2Kart...
+
+
+Sonic Robo Blast 2 Kart
+Copyright (C) 1998-2018 by Kart Krew & STJr
+
+This program comes with ABSOLUTELY NO WARRANTY.
+
+This is free software, and you are welcome to redistribute it
+and/or modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2 of
+the License, or (at your option) any later version.
+See the 'LICENSE.txt' file for details.
+
+Sonic the Hedgehog and related characters are trademarks of SEGA.
+We do not claim ownership of SEGA's intellectual property used
+in this program.
+
+Looking for WADs in: SRB2WADDIR,.,c:\games\srb2kart,\games\srb2kart,HOME, in:c:\games, in:\games
+
+I_Error(): SRB2.SRB/SRB2.WAD not found! Expected in E:\Projects\Programming\Viual Studio Workspaces\ModOrganizer\MOConsole, ss files: E:\Projects\Programming\Viual Studio Workspaces\ModOrganizer\MOConsole\srb2.srb or E:\Projects\Programming\Viual Studio Workspaces\ModOrganizer\MOConsole\srb2.wad
+
+I_ShutdownGraphics(): graphics never started
+I_ShutdownSystem(): end of logstream.

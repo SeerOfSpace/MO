@@ -148,12 +148,13 @@ BOOL ctrl_handler(DWORD event)
 }
 
 int main() {
-	vector<string> v1 = readConfig({"modPath", "gamePath", "exePath", "processName", "appID", "minorOutput", "modList"}, "Config.ini");
+	vector<string> v1 = readConfig({"modPath", "gamePath", "exePath", "processName", "appID", "minorOutput", "modList", "exeArguments"}, "Config.ini");
 	vector<string> v2 = readMods(v1[6]);
 	MOLogicStruct moStruct;
 	moStruct.modPath = v1[0];
 	moStruct.gamePath = v1[1];
 	moStruct.exePath = v1[2];
+	moStruct.exeArguments = v1[7];
 	moStruct.processName = convert(v1[3]);
 	if (v1[4] != "") {
 		moStruct.appID = (unsigned int)stoul(v1[4]);
